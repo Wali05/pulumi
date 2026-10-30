@@ -28,6 +28,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/dustin/go-humanize"
 	"github.com/spf13/cobra"
 
 	"github.com/pulumi/pulumi/pkg/v3/cmd/esc/cli/client"
@@ -251,7 +252,11 @@ func (edit *envEditCommand) chooseDraft(ctx context.Context, ref environmentRef)
 		if cr.Action != "update" || isTerminal {
 			continue
 		}
-		label := fmt.Sprintf("Edit change request %s (by %s)", cr.ID, cr.CreatedBy.GithubLogin)
+		label := fmt.Sprintf("Edit %s change request by %s, created %s",
+			cr.Status, cr.CreatedBy.GithubLogin, humanize.Time(cr.CreatedAt))
+		if _, ok := changeRequestIDs[label]; ok {
+			label += " (" + cr.ID + ")"
+		}
 		options = append(options, label)
 		changeRequestIDs[label] = cr.ID
 	}
